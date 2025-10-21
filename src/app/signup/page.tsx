@@ -151,7 +151,7 @@ export default function SignUpPage() {
       // Success - redirect to login or dashboard
       alert('Account created successfully! Please login.');
       router.push('/login');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration error:', error);
       setError('An error occurred during registration. Please try again.');
     }

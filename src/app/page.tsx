@@ -57,21 +57,21 @@ export default function Home() {
               <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🎯</div>
               <h3 className="text-xl font-bold mb-3 text-white">Mindset First</h3>
               <p className="text-gray-300 leading-relaxed">
-                JEE preparation isn't just about exams — it's about developing a resilient mindset that empowers success in life itself.
+                JEE preparation isn&apos;t just about exams — it&apos;s about developing a resilient mindset that empowers success in life itself.
               </p>
             </div>
             <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-gray-400/10 to-transparent border border-gray-400/30 hover:border-gray-400/60 hover:shadow-2xl hover:shadow-gray-400/20 transition-all duration-300 group backdrop-blur-sm">
               <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">👥</div>
               <h3 className="text-xl font-bold mb-3 text-white">Peer Mentorship</h3>
               <p className="text-gray-300 leading-relaxed">
-                Seniors from IITs, NITs, IISERs who've walked the path guide juniors with real-world experience and practical insights.
+                Seniors from IITs, NITs, IISERs who&apos;ve walked the path guide juniors with real-world experience and practical insights.
               </p>
             </div>
             <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-yellow-400/10 to-transparent border border-yellow-400/30 hover:border-yellow-400/60 hover:shadow-2xl hover:shadow-yellow-400/20 transition-all duration-300 group backdrop-blur-sm">
               <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🚀</div>
               <h3 className="text-xl font-bold mb-3 text-white">Beyond Preparation</h3>
               <p className="text-gray-300 leading-relaxed">
-                We're empowering a resilient generation of thinkers and action-takers, shaping leaders for tomorrow's challenges.
+                We&apos;re empowering a resilient generation of thinkers and action-takers, shaping leaders for tomorrow&apos;s challenges.
               </p>
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function Home() {
               <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🎓</div>
               <h3 className="text-2xl font-bold mb-3 text-white">Personal Mentorship</h3>
               <p className="text-gray-400 mb-4 leading-relaxed">
-                One-on-one guidance from mentors who've cracked JEE and studied at top institutions across India.
+                One-on-one guidance from mentors who&apos;ve cracked JEE and studied at top institutions across India.
               </p>
               <Link href="/outliers" className="text-yellow-400 font-semibold hover:text-yellow-300 transition inline-flex items-center gap-2 group">
                 Learn More 
