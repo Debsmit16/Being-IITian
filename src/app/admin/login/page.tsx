@@ -3,29 +3,42 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { login } from '@/lib/auth';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    const user = login(email, password);
-    if (user && user.role === 'admin') {
-      router.push('/dashboard/admin');
-    } else {
-      setError('Invalid credentials or not an admin account');
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.user.role === 'ADMIN') {
+          router.push('/dashboard/admin');
+        } else {
+          setError('Access denied. Admin credentials required.');
+        }
+      } else {
+        setError(data.error || 'Invalid credentials');
+      }
+    } catch (err) {
+      setError('Failed to connect. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const quickDemoLogin = () => {
-    setEmail('admin@iitian.com');
-    setPassword('password123');
   };
 
   return (
@@ -101,39 +114,12 @@ export default function AdminLoginPage() {
 
               <button
                 type="submit"
-                className="w-full py-4 px-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black rounded-xl font-bold hover:from-yellow-500 hover:to-orange-600 hover:shadow-2xl hover:shadow-yellow-400/50 transition-all duration-300 transform hover:scale-[1.02]"
+                disabled={loading}
+                className="w-full py-4 px-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black rounded-xl font-bold hover:from-yellow-500 hover:to-orange-600 hover:shadow-2xl hover:shadow-yellow-400/50 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                Sign In to Admin Portal
+                {loading ? 'Signing In...' : 'Sign In to Admin Portal'}
               </button>
             </form>
-          </div>
-
-          {/* Demo Access */}
-          <div className="bg-gray-900/70 backdrop-blur-xl p-5 rounded-2xl shadow-2xl border border-gray-700/50">
-            <div className="flex items-center justify-center space-x-2 mb-3">
-              <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-              <p className="text-sm text-gray-400">
-                <span className="font-semibold text-yellow-400">Try Demo Account</span>
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={quickDemoLogin}
-              className="w-full px-4 py-3 border border-gray-700 bg-gray-800/30 backdrop-blur-sm rounded-xl hover:bg-gray-800/60 hover:border-yellow-400/50 transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center space-x-3"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full flex items-center justify-center text-xl">
-                ⚡
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-bold text-white">Demo Admin</div>
-                <div className="text-xs text-gray-400">Quick access</div>
-              </div>
-            </button>
-            <p className="text-xs text-center text-gray-500 mt-3">
-              Password: <span className="text-yellow-400 font-mono">password123</span>
-            </p>
           </div>
 
           {/* Back Links */}
