@@ -69,10 +69,18 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { 
+        error: 'Internal server error', 
+        details: errorMessage,
+        env_check: {
+          has_database_url: !!process.env.DATABASE_URL,
+          has_jwt_secret: !!process.env.JWT_SECRET
+        }
+      },
       { status: 500 }
     );
   }
