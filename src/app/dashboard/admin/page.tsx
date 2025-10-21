@@ -72,9 +72,12 @@ export default function AdminDashboard() {
   const loadUsers = async (role?: string) => {
     try {
       const url = role ? `/api/admin/users?role=${role}` : '/api/admin/users';
+      console.log('Loading users with URL:', url);
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
+        console.log('Received users:', data.users.length, 'Role filter:', role);
+        console.log('User roles:', data.users.map((u: User) => u.role));
         setUsers(data.users);
       }
     } catch (error) {
