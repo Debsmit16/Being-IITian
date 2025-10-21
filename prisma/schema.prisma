@@ -1,0 +1,357 @@
+// This is your Prisma schema file for Being IITian platform
+// Compatible with Supabase PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Enums
+enum UserRole {
+  STUDENT
+  MENTOR
+  ADMIN
+}
+
+enum CourseLevel {
+  JEE_MAIN
+  JEE_ADVANCED
+}
+
+enum CourseSubject {
+  PHYSICS
+  CHEMISTRY
+  MATHEMATICS
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum LearningMode {
+  ONLINE
+  OFFLINE
+  HYBRID
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+// Models
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  phone         String?   @unique
+  password      String
+  fullName      String
+  role          UserRole  @default(STUDENT)
+  dateOfBirth   DateTime?
+  gender        Gender?
+  
+  // Profile Image (Supabase Storage URL)
+  avatarUrl     String?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Email verification
+  emailVerified Boolean   @default(false)
+  phoneVerified Boolean   @default(false)
+  
+  // Relations
+  studentProfile  StudentProfile?
+  mentorProfile   MentorProfile?
+  adminProfile    AdminProfile?
+  
+  @@map("users")
+}
+
+model StudentProfile {
+  id                String       @id @default(uuid())
+  userId            String       @unique
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Academic Info
+  currentClass      String
+  school            String
+  board             String
+  targetExam        String
+  targetYear        Int
+  
+  // Address
+  address           String?
+  city              String?
+  state             String?
+  pincode           String?
+  
+  // Parent/Guardian Info
+  parentName        String?
+  parentPhone       String?
+  parentEmail       String?
+  
+  // Preferences
+  learningMode      LearningMode?
+  subjects          String[]      // Array of subjects
+  hearAboutUs       String?
+  
+  // Progress
+  totalCoursesEnrolled Int       @default(0)
+  coursesCompleted     Int       @default(0)
+  totalWatchTime       Int       @default(0) // in minutes
+  
+  // Timestamps
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  
+  // Relations
+  enrollments       Enrollment[]
+  mentorSessions    MentorSession[]
+  payments          Payment[]
+  progress          Progress[]
+  
+  @@map("student_profiles")
+}
+
+model MentorProfile {
+  id                String          @id @default(uuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Professional Info
+  institution       String          // IIT Delhi, NIT Trichy, etc.
+  degree            String          // B.Tech, M.Tech, etc.
+  specialization    String[]        // Physics, Chemistry, Mathematics
+  graduationYear    Int
+  jeeRank           Int?
+  
+  // Bio
+  bio               String?
+  experience        String?         // Years of teaching/mentoring
+  
+  // Availability
+  isActive          Boolean         @default(true)
+  maxStudents       Int             @default(10)
+  hourlyRate        Float?
+  
+  // Stats
+  totalStudents     Int             @default(0)
+  totalSessions     Int             @default(0)
+  averageRating     Float           @default(0)
+  
+  // Timestamps
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  // Relations
+  sessions          MentorSession[]
+  courses           Course[]        // Courses taught by mentor
+  
+  @@map("mentor_profiles")
+}
+
+model AdminProfile {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  department        String?
+  permissions       String[]  // Array of permission strings
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@map("admin_profiles")
+}
+
+model Course {
+  id              String         @id @default(uuid())
+  title           String
+  description     String
+  subject         CourseSubject
+  level           CourseLevel
+  
+  // Content
+  thumbnailUrl    String?        // Supabase Storage URL
+  price           Float
+  duration        Int            // in hours
+  totalLectures   Int            @default(0)
+  
+  // Instructor
+  mentorId        String?
+  mentor          MentorProfile? @relation(fields: [mentorId], references: [id], onDelete: SetNull)
+  instructorName  String
+  
+  // Status
+  isPublished     Boolean        @default(false)
+  
+  // SEO
+  slug            String         @unique
+  tags            String[]
+  
+  // Timestamps
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  // Relations
+  lectures        Lecture[]
+  enrollments     Enrollment[]
+  
+  @@map("courses")
+}
+
+model Lecture {
+  id              String    @id @default(uuid())
+  courseId        String
+  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  order           Int
+  duration        Int       // in minutes
+  
+  // Video (Supabase Storage URL)
+  videoUrl        String
+  thumbnailUrl    String?
+  
+  // Resources
+  notesUrl        String?
+  attachments     String[]  // Array of URLs
+  
+  // Status
+  isPublished     Boolean   @default(false)
+  isFree          Boolean   @default(false)
+  
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  progress        Progress[]
+  
+  @@map("lectures")
+}
+
+model Enrollment {
+  id              String           @id @default(uuid())
+  studentId       String
+  student         StudentProfile   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId        String
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  status          EnrollmentStatus @default(ACTIVE)
+  progress        Float            @default(0) // 0-100
+  
+  // Access
+  enrolledAt      DateTime         @default(now())
+  expiresAt       DateTime?
+  lastAccessedAt  DateTime?
+  
+  // Payment
+  paymentId       String?
+  
+  @@unique([studentId, courseId])
+  @@map("enrollments")
+}
+
+model Progress {
+  id              String         @id @default(uuid())
+  studentId       String
+  student         StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lectureId       String
+  lecture         Lecture        @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  
+  isCompleted     Boolean        @default(false)
+  watchTime       Int            @default(0) // in seconds
+  lastPosition    Int            @default(0) // in seconds
+  
+  completedAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@unique([studentId, lectureId])
+  @@map("progress")
+}
+
+model MentorSession {
+  id              String         @id @default(uuid())
+  studentId       String
+  student         StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  mentorId        String
+  mentor          MentorProfile  @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?
+  
+  // Timing
+  scheduledAt     DateTime
+  duration        Int            // in minutes
+  status          SessionStatus  @default(SCHEDULED)
+  
+  // Meeting
+  meetingUrl      String?
+  notes           String?
+  
+  // Payment
+  amount          Float?
+  paymentId       String?
+  
+  // Timestamps
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  completedAt     DateTime?
+  
+  @@map("mentor_sessions")
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  studentId       String
+  student         StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  amount          Float
+  currency        String        @default("INR")
+  status          PaymentStatus @default(PENDING)
+  
+  // Payment Gateway
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  
+  // Details
+  itemType        String        // COURSE, SESSION, etc.
+  itemId          String
+  description     String?
+  
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  paidAt          DateTime?
+  
+  @@map("payments")
+}
