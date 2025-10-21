@@ -1,6 +1,57 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  level: string;
+  price: number;
+  duration: number;
+  totalLectures: number;
+  instructorName: string;
+  thumbnailUrl: string | null;
+  slug: string;
+}
 
 export default function Home() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await fetch('/api/courses');
+      if (response.ok) {
+        const data = await response.json();
+        setCourses(data.courses.slice(0, 3)); // Show only first 3 courses on homepage
+      }
+    } catch (error) {
+      console.error('Failed to fetch courses:', error);
+    } finally {
+      setLoadingCourses(false);
+    }
+  };
+
+  const getSubjectColor = (subject: string) => {
+    switch (subject) {
+      case 'PHYSICS':
+        return 'from-blue-500 to-blue-600';
+      case 'CHEMISTRY':
+        return 'from-green-500 to-green-600';
+      case 'MATHEMATICS':
+        return 'from-purple-500 to-purple-600';
+      default:
+        return 'from-gray-500 to-gray-600';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-black">
       {/* Hero Section */}
@@ -130,6 +181,104 @@ export default function Home() {
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Featured Courses Section */}
+      <section className="py-20 bg-gradient-to-b from-black to-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-gray-400 bg-clip-text text-transparent">
+              Featured Courses
+            </h2>
+            <p className="text-xl text-gray-400">Master JEE with our expert-designed courses</p>
+          </div>
+
+          {loadingCourses ? (
+            <div className="text-center text-gray-400">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+              <p className="mt-4">Loading courses...</p>
+            </div>
+          ) : courses.length === 0 ? (
+            <div className="text-center text-gray-400">
+              <div className="text-6xl mb-4">📚</div>
+              <p className="text-xl">New courses coming soon!</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid md:grid-cols-3 gap-8 mb-8">
+                {courses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="bg-gradient-to-br from-gray-900 to-black rounded-2xl overflow-hidden border border-gray-800 hover:border-yellow-400/50 hover:shadow-2xl hover:shadow-yellow-400/10 transition-all duration-300 group"
+                  >
+                    {/* Course Thumbnail */}
+                    <div className="relative h-48 bg-gradient-to-br overflow-hidden">
+                      {course.thumbnailUrl ? (
+                        <img
+                          src={course.thumbnailUrl}
+                          alt={course.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className={`w-full h-full bg-gradient-to-br ${getSubjectColor(course.subject)} flex items-center justify-center`}>
+                          <span className="text-6xl">
+                            {course.subject === 'PHYSICS' ? '⚛️' : course.subject === 'CHEMISTRY' ? '🧪' : '📐'}
+                          </span>
+                        </div>
+                      )}
+                      <div className="absolute top-4 left-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          course.subject === 'PHYSICS' ? 'bg-blue-500/90' :
+                          course.subject === 'CHEMISTRY' ? 'bg-green-500/90' :
+                          'bg-purple-500/90'
+                        } text-white backdrop-blur-sm`}>
+                          {course.subject}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Course Content */}
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">
+                        {course.title}
+                      </h3>
+                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                        {course.description}
+                      </p>
+
+                      <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
+                        <span>👨‍🏫 {course.instructorName}</span>
+                        <span>📚 {course.totalLectures} lectures</span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-800">
+                        <div>
+                          <span className="text-2xl font-bold text-yellow-400">₹{course.price}</span>
+                        </div>
+                        <Link
+                          href={`/courses/${course.slug}`}
+                          className="px-6 py-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black rounded-lg font-semibold hover:shadow-lg hover:shadow-yellow-400/50 transform hover:scale-105 transition-all duration-300"
+                        >
+                          Enroll Now
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="text-center">
+                <Link
+                  href="/courses"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-gray-800 text-white border border-yellow-400/50 rounded-lg font-semibold hover:bg-gray-700 hover:border-yellow-400 transition-all duration-300 group"
+                >
+                  View All Courses
+                  <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

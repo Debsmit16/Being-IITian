@@ -15,8 +15,7 @@ export async function GET(request: NextRequest) {
       prisma.user.count(),
       prisma.user.count({ where: { role: 'STUDENT' } }),
       prisma.user.count({ where: { role: 'MENTOR' } }),
-      // Courses don't exist in schema yet, return 0 for now
-      Promise.resolve(0),
+      prisma.course.count(),
     ]);
 
     return NextResponse.json({

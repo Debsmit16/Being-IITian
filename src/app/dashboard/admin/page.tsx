@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AddUserModal from '@/components/admin/AddUserModal';
+import AddCourseModal from '@/components/admin/AddCourseModal';
 
 // Define types
 type TabType = 'overview' | 'students' | 'mentors' | 'courses' | 'users';
@@ -25,6 +26,23 @@ interface User {
   createdAt: string;
 }
 
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  level: string;
+  price: number;
+  duration: number;
+  totalLectures: number;
+  instructorName: string;
+  thumbnailUrl: string | null;
+  isPublished: boolean;
+  createdAt: string;
+  slug: string;
+  tags: string[];
+}
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [loading, setLoading] = useState(true);
@@ -35,7 +53,9 @@ export default function AdminDashboard() {
     totalUsers: 0
   });
   const [users, setUsers] = useState<User[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [modalUserType, setModalUserType] = useState<'STUDENT' | 'MENTOR'>('STUDENT');
   const router = useRouter();
 
@@ -85,6 +105,18 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadCourses = async () => {
+    try {
+      const response = await fetch('/api/admin/courses');
+      if (response.ok) {
+        const data = await response.json();
+        setCourses(data.courses);
+      }
+    } catch (error) {
+      console.error('Failed to load courses:', error);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'users') {
       loadUsers();
@@ -92,15 +124,17 @@ export default function AdminDashboard() {
       loadUsers('STUDENT');
     } else if (activeTab === 'mentors') {
       loadUsers('MENTOR');
+    } else if (activeTab === 'courses') {
+      loadCourses();
     }
   }, [activeTab]);
 
-  const openAddModal = (type: 'STUDENT' | 'MENTOR') => {
+  const openAddUserModal = (type: 'STUDENT' | 'MENTOR') => {
     setModalUserType(type);
-    setIsModalOpen(true);
+    setIsUserModalOpen(true);
   };
 
-  const handleModalSuccess = () => {
+  const handleUserModalSuccess = () => {
     loadStats();
     if (activeTab === 'students') {
       loadUsers('STUDENT');
@@ -109,6 +143,11 @@ export default function AdminDashboard() {
     } else {
       loadUsers();
     }
+  };
+
+  const handleCourseModalSuccess = () => {
+    loadStats();
+    loadCourses();
   };
 
   const deleteUser = async (userId: string, userName: string) => {
@@ -123,7 +162,14 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         alert('User deleted successfully');
-        handleModalSuccess();
+        loadStats();
+        if (activeTab === 'students') {
+          loadUsers('STUDENT');
+        } else if (activeTab === 'mentors') {
+          loadUsers('MENTOR');
+        } else {
+          loadUsers();
+        }
       } else {
         const data = await response.json();
         alert(data.error || 'Failed to delete user');
@@ -314,18 +360,20 @@ export default function AdminDashboard() {
               <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <button 
-                  onClick={() => openAddModal('STUDENT')}
+                  onClick={() => openAddUserModal('STUDENT')}
                   className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition-all group">
                   <div className="text-4xl mb-2">➕</div>
                   <p className="text-sm font-semibold text-gray-700 group-hover:text-yellow-600">Add Student</p>
                 </button>
                 <button 
-                  onClick={() => openAddModal('MENTOR')}
+                  onClick={() => openAddUserModal('MENTOR')}
                   className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all group">
                   <div className="text-4xl mb-2">👨‍🏫</div>
                   <p className="text-sm font-semibold text-gray-700 group-hover:text-purple-600">Add Mentor</p>
                 </button>
-                <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all group">
+                <button 
+                  onClick={() => setIsCourseModalOpen(true)}
+                  className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all group">
                   <div className="text-4xl mb-2">📚</div>
                   <p className="text-sm font-semibold text-gray-700 group-hover:text-orange-600">Add Course</p>
                 </button>
@@ -347,12 +395,12 @@ export default function AdminDashboard() {
               </div>
               <div className="flex space-x-3">
                 <button 
-                  onClick={() => openAddModal('STUDENT')}
+                  onClick={() => openAddUserModal('STUDENT')}
                   className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
                   + Add Student
                 </button>
                 <button 
-                  onClick={() => openAddModal('MENTOR')}
+                  onClick={() => openAddUserModal('MENTOR')}
                   className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
                   + Add Mentor
                 </button>
@@ -423,7 +471,7 @@ export default function AdminDashboard() {
                 <p className="text-gray-600 mt-2">View and manage all registered students</p>
               </div>
               <button 
-                onClick={() => openAddModal('STUDENT')}
+                onClick={() => openAddUserModal('STUDENT')}
                 className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
                 + Add Student
               </button>
@@ -489,7 +537,7 @@ export default function AdminDashboard() {
                 <p className="text-gray-600 mt-2">Manage mentors and their courses</p>
               </div>
               <button 
-                onClick={() => openAddModal('MENTOR')}
+                onClick={() => openAddUserModal('MENTOR')}
                 className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
                 + Add Mentor
               </button>
@@ -554,15 +602,90 @@ export default function AdminDashboard() {
                 <h2 className="text-3xl font-bold text-gray-900">Course Management</h2>
                 <p className="text-gray-600 mt-2">Create and manage courses with full control</p>
               </div>
-              <button className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
+              <button 
+                onClick={() => setIsCourseModalOpen(true)}
+                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
                 + Create Course
               </button>
             </div>
 
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
-              <div className="text-6xl mb-4">📚</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Course Database</h3>
-              <p className="text-gray-600">Full course management: descriptions, pricing, syllabus, lectures, and resources</p>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Course</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Subject</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Level</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Price</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Lectures</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {courses.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                        <div className="text-6xl mb-4">📚</div>
+                        <p className="text-gray-600 mb-4">No courses found. Create your first course!</p>
+                        <button 
+                          onClick={() => setIsCourseModalOpen(true)}
+                          className="px-6 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600">
+                          Create First Course
+                        </button>
+                      </td>
+                    </tr>
+                  ) : (
+                    courses.map((course) => (
+                      <tr key={course.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="font-semibold text-gray-900">{course.title}</div>
+                            <div className="text-sm text-gray-500">{course.instructorName}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            course.subject === 'PHYSICS' ? 'bg-blue-100 text-blue-700' :
+                            course.subject === 'CHEMISTRY' ? 'bg-green-100 text-green-700' :
+                            'bg-purple-100 text-purple-700'
+                          }`}>
+                            {course.subject}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm text-gray-600">
+                            {course.level.replace('_', ' ')}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-semibold text-gray-900">₹{course.price}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm text-gray-600">{course.totalLectures} lectures</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            course.isPublished 
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {course.isPublished ? 'Published' : 'Draft'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button className="text-blue-600 hover:text-blue-800 font-semibold text-sm mr-3">
+                            Edit
+                          </button>
+                          <button className="text-red-600 hover:text-red-800 font-semibold text-sm">
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -570,10 +693,17 @@ export default function AdminDashboard() {
 
       {/* Add User Modal */}
       <AddUserModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isUserModalOpen}
+        onClose={() => setIsUserModalOpen(false)}
         userType={modalUserType}
-        onSuccess={handleModalSuccess}
+        onSuccess={handleUserModalSuccess}
+      />
+
+      {/* Add Course Modal */}
+      <AddCourseModal
+        isOpen={isCourseModalOpen}
+        onClose={() => setIsCourseModalOpen(false)}
+        onSuccess={handleCourseModalSuccess}
       />
     </div>
   );
