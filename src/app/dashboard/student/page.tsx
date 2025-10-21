@@ -299,22 +299,22 @@ export default function StudentDashboard() {
           {activeTab === 'profile' && (
             <div className="space-y-6">
               {/* Profile Header */}
-              <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/20 rounded-2xl p-8">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-8">
                 <div className="flex items-start space-x-6">
-                  <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center text-black font-bold text-4xl">
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white font-bold text-4xl shadow-lg">
                     {user.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-3xl font-bold text-white mb-2">{user.fullName}</h2>
-                    <p className="text-gray-400 mb-4">{user.email}</p>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">{user.fullName}</h2>
+                    <p className="text-gray-600 mb-4">{user.email}</p>
                     <div className="flex flex-wrap gap-3">
-                      <span className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg text-sm border border-blue-500/30">
+                      <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm border border-blue-200 font-medium">
                         📚 {user.studentProfile.currentClass}
                       </span>
-                      <span className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm border border-green-500/30">
+                      <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm border border-green-200 font-medium">
                         🎯 {user.studentProfile.targetExam}
                       </span>
-                      <span className="px-4 py-2 bg-purple-500/20 text-purple-400 rounded-lg text-sm border border-purple-500/30">
+                      <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm border border-purple-200 font-medium">
                         📅 Target: {user.studentProfile.targetYear}
                       </span>
                     </div>
@@ -325,8 +325,8 @@ export default function StudentDashboard() {
               {/* Details Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Personal */}
-                <div className="bg-black/40 backdrop-blur-xl border border-gray-800 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center">
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <span className="text-2xl mr-3">👤</span>Personal Details
                   </h3>
                   <div className="space-y-4">
@@ -337,17 +337,17 @@ export default function StudentDashboard() {
                       { label: 'Date of Birth', value: new Date(user.dateOfBirth).toLocaleDateString() },
                       { label: 'Gender', value: user.gender },
                     ].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center py-3 border-b border-gray-800 last:border-0">
-                        <span className="text-gray-400">{item.label}</span>
-                        <span className="text-white font-medium">{item.value}</span>
+                      <div key={index} className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+                        <span className="text-gray-600">{item.label}</span>
+                        <span className="text-gray-900 font-medium">{item.value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Academic */}
-                <div className="bg-black/40 backdrop-blur-xl border border-gray-800 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center">
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <span className="text-2xl mr-3">🎓</span>Academic Information
                   </h3>
                   <div className="space-y-4">
@@ -358,17 +358,17 @@ export default function StudentDashboard() {
                       { label: 'Target Exam', value: user.studentProfile.targetExam },
                       { label: 'Target Year', value: user.studentProfile.targetYear.toString() },
                     ].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center py-3 border-b border-gray-800 last:border-0">
-                        <span className="text-gray-400">{item.label}</span>
-                        <span className="text-white font-medium">{item.value}</span>
+                      <div key={index} className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+                        <span className="text-gray-600">{item.label}</span>
+                        <span className="text-gray-900 font-medium">{item.value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Address */}
-                <div className="bg-black/40 backdrop-blur-xl border border-gray-800 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center">
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <span className="text-2xl mr-3">📍</span>Address Details
                   </h3>
                   <div className="space-y-4">
@@ -378,17 +378,17 @@ export default function StudentDashboard() {
                       { label: 'State', value: user.studentProfile.state },
                       { label: 'Pincode', value: user.studentProfile.pincode },
                     ].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center py-3 border-b border-gray-800 last:border-0">
-                        <span className="text-gray-400">{item.label}</span>
-                        <span className="text-white font-medium">{item.value}</span>
+                      <div key={index} className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+                        <span className="text-gray-600">{item.label}</span>
+                        <span className="text-gray-900 font-medium">{item.value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Parent */}
-                <div className="bg-black/40 backdrop-blur-xl border border-gray-800 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center">
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <span className="text-2xl mr-3">👨‍👩‍👦</span>Parent Details
                   </h3>
                   <div className="space-y-4">
@@ -397,9 +397,9 @@ export default function StudentDashboard() {
                       { label: 'Phone', value: user.studentProfile.parentPhone },
                       { label: 'Email', value: user.studentProfile.parentEmail },
                     ].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center py-3 border-b border-gray-800 last:border-0">
-                        <span className="text-gray-400">{item.label}</span>
-                        <span className="text-white font-medium">{item.value}</span>
+                      <div key={index} className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+                        <span className="text-gray-600">{item.label}</span>
+                        <span className="text-gray-900 font-medium">{item.value}</span>
                       </div>
                     ))}
                   </div>
@@ -407,22 +407,22 @@ export default function StudentDashboard() {
               </div>
 
               {/* Preferences */}
-              <div className="bg-black/40 backdrop-blur-xl border border-gray-800 rounded-2xl p-6">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center">
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                   <span className="text-2xl mr-3">⚙️</span>Learning Preferences
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-gray-400 block mb-2">Learning Mode</label>
-                    <span className="px-4 py-2 bg-purple-500/20 text-purple-400 rounded-lg text-sm border border-purple-500/30 inline-block">
+                    <label className="text-gray-600 block mb-2 font-medium">Learning Mode</label>
+                    <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm border border-purple-200 inline-block font-medium">
                       {user.studentProfile.learningMode}
                     </span>
                   </div>
                   <div>
-                    <label className="text-gray-400 block mb-2">Subjects</label>
+                    <label className="text-gray-600 block mb-2 font-medium">Subjects</label>
                     <div className="flex flex-wrap gap-2">
                       {user.studentProfile.subjects.map((subject, index) => (
-                        <span key={index} className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg text-sm border border-blue-500/30">
+                        <span key={index} className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm border border-blue-200 font-medium">
                           {subject}
                         </span>
                       ))}
