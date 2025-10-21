@@ -10,8 +10,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all users with their profiles
+    // Get role filter from query params
+    const { searchParams } = new URL(request.url);
+    const roleFilter = searchParams.get('role');
+
+    // Build where clause
+    const where: any = {};
+    if (roleFilter && ['STUDENT', 'MENTOR', 'ADMIN'].includes(roleFilter)) {
+      where.role = roleFilter;
+    }
+
+    // Get users with optional role filter
     const users = await prisma.user.findMany({
+      where,
       select: {
         id: true,
         email: true,
