@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     // For now, create payment record with PENDING status
     // Get student profile
     const student = await prisma.user.findUnique({
-      where: { id: user.id as string },
+      where: { id: user.userId },
       include: { studentProfile: true },
     });
 
